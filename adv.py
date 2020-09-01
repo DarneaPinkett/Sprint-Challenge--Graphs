@@ -30,32 +30,34 @@ player = Player(world.starting_room)
 # Fill this out with directions to walk
 # traversal_path = ['n', 'n']
 traversal_path = []
+visted = {}
+reverse_path = []
+reverse_dir = {'n':'s', 'e':'w', 's':'n', 'w':'e'}
 
+visted[player.current_room.id] = player.current_room.get_exits()
+
+while len(visted) < len(room_graph):
+    if player.current_room.id not in visted:
+        visted[player.current_room.id] =player.current_room.get_exits()
+        prev = reverse_path[-1]
+        visted[player.current_room.id].remove(prev)
+    if len(visted[player.current_room.id]) == 0:
+        prev = reverse_path[-1]
+        reverse_path.pop()
+        traversal_path.append(prev)
+        player.travel(prev)
+    else:
+        dir = visted[player.current_room.id][-1]
+        visted[player.current_room.id].pop()
+        traversal_path.append(dir)
+        reverse_path.append(reverse_dir[dir])
+        player.travel(dir)
 
 
 # TRAVERSAL TEST - DO NOT MODIFY
 visited_rooms = set()
 player.current_room = world.starting_room
-
-moves = Stack()
-
-while len(visited_rooms) < len(world.rooms):
-    exits = player.current_room.get_exits()
-    possible_directions = []
-
-    for exit in exits:
-        if (exit is not None) and (player.current_room.get_room_in_direction(exit) not in visited_rooms):
-            possible_directions.append(exit)
-            
-    visited_rooms.add(player.current_room)
-
-    if len(possible_directions) > 0:
-        random_direction = random.randint(0, len(possible_directions) -1)
-        moves.push(possible_directions[random_direction])
-        player.travel(possible_directions[random_direction])
-        traversal_path.append(possible_directions[random_direction])
-    else:
-        last_move = moves.pop()
+visited_rooms.add(player.current_room)
 
 
 for move in traversal_path:
